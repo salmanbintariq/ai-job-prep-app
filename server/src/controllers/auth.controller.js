@@ -192,3 +192,10 @@ export async function refresh(req, res) {
     });
   }
 }
+
+export async function getMe(req, res) {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+}
