@@ -5,6 +5,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Add access token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export async function register({ username, email, password }) {
   try {
     const res = await api.post("/auth/register", {
@@ -13,9 +22,14 @@ export async function register({ username, email, password }) {
       password,
     });
 
+    // Store the access token after registration
+    if (res.data.accessToken) {
+      localStorage.setItem("accessToken", res.data.accessToken);
+    }
+
     return res.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -26,9 +40,14 @@ export async function login({ email, password }) {
       password,
     });
 
+    // Store the access token after login
+    if (res.data.accessToken) {
+      localStorage.setItem("accessToken", res.data.accessToken);
+    }
+
     return res.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -36,9 +55,12 @@ export async function logout() {
   try {
     const res = await api.post("/auth/logout");
 
+    // Remove the access token after logout
+    localStorage.removeItem("accessToken");
+
     return res.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -48,6 +70,6 @@ export async function getMe() {
 
     return res.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
