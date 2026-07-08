@@ -1,10 +1,13 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
+import interviewRouter from "./routes/interview.routes.js";
 import cookieParser from "cookie-parser";
 
-dotenv.config();
+
 
 const app = express();
 
@@ -18,5 +21,6 @@ app.use(cookieParser());
 
 // Routes 
 app.use("/api/auth", authRoutes);
+app.use("/api/interview", interviewRouter);
 
 export default app;

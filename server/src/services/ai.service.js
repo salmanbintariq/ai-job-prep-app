@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import * as z from "zod";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 // Zod — sirf validation ke liye rakho
@@ -106,51 +106,177 @@ const geminiSchema = {
   ],
 };
 
+// export const generateInterviewReport = async ({
+//   resume,
+//   jobDescription,
+//   selfDescription,
+// }) => {
+//   try {
+//     const prompt = `You are an expert technical interviewer and career coach.
+
+// Analyze the following candidate information against the job description and generate a structured interview preparation report.
+
+// CANDIDATE RESUME:
+// ${resume}
+
+// JOB DESCRIPTION:
+// ${jobDescription}
+
+// CANDIDATE SELF DESCRIPTION:
+// ${selfDescription}
+
+// You MUST return a JSON object with EXACTLY these fields:
+// - matchScore: number between 0-100
+// - technicalQuestions: array of 5 objects, each with (question, intention, answer)
+// - behavioralQuestions: array of 5 objects, each with (question, intention, answer)
+// - skillGaps: array of objects, each with (skill, severity: "low"/"medium"/"high")
+// - preparationPlan: array of 7 objects, each with (day: number, focus: string, tasks: array of strings)
+
+// Do NOT add any extra fields. Follow the schema STRICTLY.`;
+
+//     const response = await ai.models.generateContent({
+//       model: "gemini-2.5-flash",
+//       contents: prompt,
+//       config: {
+//         responseMimeType: "application/json",
+//         responseSchema: geminiSchema, // ✅ manual schema
+//       },
+//     });
+
+//     const parsed = JSON.parse(response.text);
+
+//     // Zod se validate karo
+//     const validated = interviewSchema.parse(parsed);
+
+//     console.log(validated);
+//     return validated;
+//   } catch (error) {
+//     throw new Error(`AI generation failed: ${error.message}`);
+//   }
+// };
+
 export const generateInterviewReport = async ({
   resume,
   jobDescription,
   selfDescription,
 }) => {
-  try {
-    const prompt = `You are an expert technical interviewer and career coach.
 
-Analyze the following candidate information against the job description and generate a structured interview preparation report.
+  const prompt = `
+You are an expert technical interviewer, hiring manager, and career coach.
 
-CANDIDATE RESUME:
+Analyze the candidate's resume, self-description, and the job description carefully.
+
+Return ONLY a valid JSON object.
+
+IMPORTANT RULES:
+- Do NOT return Markdown.
+- Do NOT wrap the response inside \`\`\`.
+- Do NOT include explanations before or after the JSON.
+- Do NOT return an array.
+- Return ONLY one JSON object.
+- Follow the structure EXACTLY.
+
+The JSON MUST have this structure:
+
+{
+  "matchScore": 85,
+  "technicalQuestions": [
+    {
+      "question": "",
+      "intention": "",
+      "answer": ""
+    }
+  ],
+  "behavioralQuestions": [
+    {
+      "question": "",
+      "intention": "",
+      "answer": ""
+    }
+  ],
+  "skillGaps": [
+    {
+      "skill": "",
+      "severity": "low"
+    }
+  ],
+  "preparationPlan": [
+    {
+      "day": 1,
+      "focus": "",
+      "tasks": [""]
+    }
+  ]
+}
+
+Requirements:
+
+1. matchScore
+- Return a realistic score between 0 and 100.
+
+2. technicalQuestions
+- Generate EXACTLY 5 technical interview questions.
+- Each question must be relevant to the candidate and the job.
+- Each object MUST contain:
+  - question
+  - intention
+  - answer
+- The "answer" field MUST contain a detailed sample answer that demonstrates what an ideal candidate should say.
+- The answer MUST NOT be empty.
+
+3. behavioralQuestions
+- Generate EXACTLY 5 behavioral interview questions.
+- Each object MUST contain:
+  - question
+  - intention
+  - answer
+- The "answer" field MUST contain a professional sample answer using the STAR method where appropriate.
+- The answer MUST NOT be empty.
+
+4. skillGaps
+- Identify realistic missing skills.
+- Severity must ONLY be:
+  - "low"
+  - "medium"
+  - "high"
+
+5. preparationPlan
+- Generate EXACTLY 7 days.
+- Each day must include:
+  - day
+  - focus
+  - tasks
+- Each day should have 3-5 practical tasks.
+
+VERY IMPORTANT:
+- Every string field must contain meaningful content.
+- Never leave any field empty.
+- Never use null.
+- Never omit any required field.
+- Return ONLY valid JSON.
+
+Candidate Resume:
 ${resume}
 
-JOB DESCRIPTION:
+Job Description:
 ${jobDescription}
 
-CANDIDATE SELF DESCRIPTION:
+Candidate Self Description:
 ${selfDescription}
+`;
 
-You MUST return a JSON object with EXACTLY these fields:
-- matchScore: number between 0-100
-- technicalQuestions: array of 5 objects, each with (question, intention, answer)
-- behavioralQuestions: array of 5 objects, each with (question, intention, answer)
-- skillGaps: array of objects, each with (skill, severity: "low"/"medium"/"high")
-- preparationPlan: array of 7 objects, each with (day: number, focus: string, tasks: array of strings)
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json",
+    },
+  });
 
-Do NOT add any extra fields. Follow the schema STRICTLY.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: geminiSchema, // ✅ manual schema        
-      },
-    });
+  const parsed = JSON.parse(response.text);
 
-    const parsed = JSON.parse(response.text);
+  // console.log(JSON.stringify(parsed, null, 2));
 
-    // Zod se validate karo
-    const validated = interviewSchema.parse(parsed);
-
-    console.log(validated);
-    return validated;
-  } catch (error) {
-    throw new Error(`AI generation failed: ${error.message}`);
-  }
+  return parsed;
 };
