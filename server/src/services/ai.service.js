@@ -35,12 +35,18 @@ const interviewSchema = z.object({
       tasks: z.array(z.string()),
     }),
   ),
+  title: z.string(),
 });
 
 // Gemini ka apna schema format — manually likho
 const geminiSchema = {
   type: "object",
   properties: {
+    title: {
+      type: "string",
+      description: "A short descriptive title for this interview report.",
+    },
+
     matchScore: {
       type: "number",
       description:
@@ -98,6 +104,7 @@ const geminiSchema = {
     },
   },
   required: [
+    "title",
     "matchScore",
     "technicalQuestions",
     "behavioralQuestions",
@@ -106,61 +113,11 @@ const geminiSchema = {
   ],
 };
 
-// export const generateInterviewReport = async ({
-//   resume,
-//   jobDescription,
-//   selfDescription,
-// }) => {
-//   try {
-//     const prompt = `You are an expert technical interviewer and career coach.
-
-// Analyze the following candidate information against the job description and generate a structured interview preparation report.
-
-// CANDIDATE RESUME:
-// ${resume}
-
-// JOB DESCRIPTION:
-// ${jobDescription}
-
-// CANDIDATE SELF DESCRIPTION:
-// ${selfDescription}
-
-// You MUST return a JSON object with EXACTLY these fields:
-// - matchScore: number between 0-100
-// - technicalQuestions: array of 5 objects, each with (question, intention, answer)
-// - behavioralQuestions: array of 5 objects, each with (question, intention, answer)
-// - skillGaps: array of objects, each with (skill, severity: "low"/"medium"/"high")
-// - preparationPlan: array of 7 objects, each with (day: number, focus: string, tasks: array of strings)
-
-// Do NOT add any extra fields. Follow the schema STRICTLY.`;
-
-//     const response = await ai.models.generateContent({
-//       model: "gemini-2.5-flash",
-//       contents: prompt,
-//       config: {
-//         responseMimeType: "application/json",
-//         responseSchema: geminiSchema, // ✅ manual schema
-//       },
-//     });
-
-//     const parsed = JSON.parse(response.text);
-
-//     // Zod se validate karo
-//     const validated = interviewSchema.parse(parsed);
-
-//     console.log(validated);
-//     return validated;
-//   } catch (error) {
-//     throw new Error(`AI generation failed: ${error.message}`);
-//   }
-// };
-
 export const generateInterviewReport = async ({
   resume,
   jobDescription,
   selfDescription,
 }) => {
-
   const prompt = `
 You are an expert technical interviewer, hiring manager, and career coach.
 
@@ -179,6 +136,7 @@ IMPORTANT RULES:
 The JSON MUST have this structure:
 
 {
+  "title": "",
   "matchScore": 85,
   "technicalQuestions": [
     {
@@ -211,10 +169,17 @@ The JSON MUST have this structure:
 
 Requirements:
 
-1. matchScore
+1. title
+- Generate a short and meaningful title for this interview report.
+- Format:
+  "<Job Role>"
+- Example:
+  "Associate Software Engineer"
+
+2. matchScore
 - Return a realistic score between 0 and 100.
 
-2. technicalQuestions
+3. technicalQuestions
 - Generate EXACTLY 5 technical interview questions.
 - Each question must be relevant to the candidate and the job.
 - Each object MUST contain:
@@ -224,7 +189,7 @@ Requirements:
 - The "answer" field MUST contain a detailed sample answer that demonstrates what an ideal candidate should say.
 - The answer MUST NOT be empty.
 
-3. behavioralQuestions
+4. behavioralQuestions
 - Generate EXACTLY 5 behavioral interview questions.
 - Each object MUST contain:
   - question
@@ -233,14 +198,14 @@ Requirements:
 - The "answer" field MUST contain a professional sample answer using the STAR method where appropriate.
 - The answer MUST NOT be empty.
 
-4. skillGaps
+5. skillGaps
 - Identify realistic missing skills.
 - Severity must ONLY be:
   - "low"
   - "medium"
   - "high"
 
-5. preparationPlan
+6. preparationPlan
 - Generate EXACTLY 7 days.
 - Each day must include:
   - day
@@ -273,10 +238,7 @@ ${selfDescription}
     },
   });
 
-
-  const parsed = JSON.parse(response.text);
-
-  // console.log(JSON.stringify(parsed, null, 2));
+  const parsed = interviewSchema.parse(JSON.parse(response.text));
 
   return parsed;
 };

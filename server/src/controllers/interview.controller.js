@@ -29,9 +29,7 @@ export const generateInterviewController = async (req, res) => {
     // ==============================
     // Extract Resume Text
     // ==============================
-    const result = await extractText(
-      new Uint8Array(req.file.buffer)
-    );
+    const result = await extractText(new Uint8Array(req.file.buffer));
 
     // Uncomment only for debugging
     // console.dir(result, { depth: null });
@@ -69,10 +67,7 @@ export const generateInterviewController = async (req, res) => {
     // ==============================
     // Validate AI Response
     // ==============================
-    if (
-      !interviewReportByAi ||
-      typeof interviewReportByAi !== "object"
-    ) {
+    if (!interviewReportByAi || typeof interviewReportByAi !== "object") {
       return res.status(500).json({
         success: false,
         message: "Invalid response received from AI.",
@@ -80,6 +75,7 @@ export const generateInterviewController = async (req, res) => {
     }
 
     const {
+      title,
       matchScore,
       technicalQuestions,
       behavioralQuestions,
@@ -88,6 +84,7 @@ export const generateInterviewController = async (req, res) => {
     } = interviewReportByAi;
 
     if (
+      typeof title !== "string" ||
       typeof matchScore !== "number" ||
       !Array.isArray(technicalQuestions) ||
       !Array.isArray(behavioralQuestions) ||
@@ -115,6 +112,7 @@ export const generateInterviewController = async (req, res) => {
     // Save Report
     // ==============================
     const report = await InterviewReport.create({
+      title,
       jobDescription,
       resume: resumeText,
       selfDescription,
@@ -134,7 +132,6 @@ export const generateInterviewController = async (req, res) => {
       message: "Interview report generated successfully.",
       data: report,
     });
-
   } catch (error) {
     console.error("========== INTERVIEW REPORT ERROR ==========");
     console.error(error);
@@ -155,6 +152,56 @@ export const generateInterviewController = async (req, res) => {
       });
     }
 
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error.",
+    });
+  }
+};
+
+export const getInterviewReportByIdController = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
+
+    const interviewReport = await InterviewReport.findOne({
+      _id: interviewId,
+      user: req.user.id,
+    });
+
+    if (!interviewReport) {
+      return res.status(404).json({
+        success: false,
+        message: "Interview report not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Interview report fetched successfully.",
+      data: interviewReport,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error.",
+    });
+  }
+};
+
+export const getAllInterviewReportsController = async (req, res) => {
+  try {
+    const reports = await InterviewReport.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .select(
+        "-resume -jobDescription -selfDescription -__v -technicalQuestions -behavioralQuestions -skillGaps -preparationPlan",
+      );
+
+    return res.status(200).json({
+      success: true,
+      message: "Interview reports fetched successfully.",
+      data: reports,
+    });
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message || "Internal Server Error.",
