@@ -8,7 +8,11 @@ import Interview from "./features/ai/pages/Interview";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Protected><Home /></Protected>,
+    element: (
+      <Protected>
+        <Home />
+      </Protected>
+    ),
   },
   {
     path: "/login",
@@ -20,6 +24,14 @@ export const router = createBrowserRouter([
   },
   {
     path: "/interview/:interviewId",
-    element: <Protected><Interview/></Protected>
-  }
+    element: (
+      <Protected>
+        <Interview />
+      </Protected>
+    ),
+  },
+  {
+    path: "*",
+    element: <Navigate to="/login" replace />, // ✅ unknown routes
+  },
 ]);

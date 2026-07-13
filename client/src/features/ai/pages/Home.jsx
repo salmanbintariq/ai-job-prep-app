@@ -1,6 +1,42 @@
 import "../style/home.scss";
+import { useInterview } from "../hooks/useInterview.js";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
 
 const Home = () => {
+  const navigate = useNavigate();
+  const { loading, handleGenerate } = useInterview();
+  const [jobDescription, setJobDescription] = useState("");
+  const [selfDescription, setSelfDescription] = useState("");
+  const resumeInputRef = useRef();
+
+  const handleSubmit = async () => {
+    const resumeFile = resumeInputRef.current?.files[0];
+
+    if (!jobDescription.trim()) {
+      alert("Please enter a job description");
+      return;
+    }
+
+    if (!resumeFile && !selfDescription.trim()) {
+      alert("Please upload a resume or enter a self description");
+      return;
+    }
+
+    try {
+      const data = await handleGenerate({
+        jobDescription,
+        selfDescription,
+        resumeFile: resumeFile || null,
+      });
+
+      navigate(`/interview/${data._id}`);
+    } catch (error) {
+      console.error("Failed to generate report:", error);
+      alert(error?.message || "Failed to generate report. Please try again.");
+    }
+  };
+
   return (
     <div className="home-page">
       {/* Page Header */}
@@ -40,11 +76,14 @@ const Home = () => {
               <span className="badge badge--required">Required</span>
             </div>
             <textarea
+              onChange={(e) => {
+                setJobDescription(e.target.value);
+              }}
               className="panel__textarea"
               placeholder="Paste the full job description here..."
               maxLength={5000}
             />
-            <div className="char-counter">0 / 5000 chars</div>
+            <div className="char-counter">{jobDescription.length} / 5000 chars</div>
           </div>
 
           {/* Vertical Divider */}
@@ -102,10 +141,11 @@ const Home = () => {
                 <p className="dropzone__subtitle">PDF (Max 5MB)</p>
                 <input
                   hidden
+                  ref={resumeInputRef}
                   type="file"
                   id="resume"
                   name="resume"
-                  accept=".pdf,.docx"
+                  accept=".pdf"
                 />
               </label>
             </div>
@@ -121,6 +161,9 @@ const Home = () => {
                 Quick Self-Description
               </label>
               <textarea
+                onChange={(e) => {
+                  setSelfDescription(e.target.value);
+                }}
                 id="selfDescription"
                 name="selfDescription"
                 className="panel__textarea panel__textarea--short"
@@ -171,7 +214,12 @@ const Home = () => {
           <span className="footer-info">
             AI-Powered Strategy Generation &bull; Approx 30s
           </span>
-          <button type="button" className="generate-btn">
+          <button
+            type="button"
+            className={`generate-btn ${loading ? "loading" : ""}`}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -181,7 +229,7 @@ const Home = () => {
             >
               <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
             </svg>
-            Generate My Interview Strategy
+            {loading ? "Generating" : "Generate My Interview Strategy"}
           </button>
         </div>
       </div>

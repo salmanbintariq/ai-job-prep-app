@@ -1,5 +1,6 @@
 import '../style/interview.scss'
 import { useState } from 'react'
+import { useInterview } from "../hooks/useInterview.js"
 
 // ── Mock Data ─────────────────────────────────────────────────────────────────
 const MOCK_REPORT = {
@@ -241,6 +242,7 @@ const RoadMapDay = ({ day }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
   const [activeNav, setActiveNav] = useState('technical') // ✅ active tab state
+  // const { report } = useInterview();
 
   const report = MOCK_REPORT
 
