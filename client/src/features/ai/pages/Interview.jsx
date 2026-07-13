@@ -1,6 +1,8 @@
 import '../style/interview.scss'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useInterview } from "../hooks/useInterview.js"
+import { useParams } from 'react-router'
+import Spinner from "../../../shared/components/Spinner.jsx"
 
 
 
@@ -106,7 +108,31 @@ const RoadMapDay = ({ day }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
   const [activeNav, setActiveNav] = useState('technical') // ✅ active tab state
-  const { report } = useInterview();
+  const { interviewId } = useParams()
+  const { report, loading, fetchReportById } = useInterview();
+
+  useEffect(() => {
+    if (interviewId) {
+      fetchReportById(interviewId);
+    }
+  }, [interviewId]);
+
+  if (loading) {
+    return (
+      <Spinner/>
+    );
+  }
+
+  // ✅ Report null check — crash se bachao
+  if (!report) {
+    return (
+      <div className='interview-page'>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <p style={{ color: '#94a3b8' }}>Report not found.</p>
+        </div>
+      </div>
+    );
+  }
 
 
   // ✅ Active section ka content
