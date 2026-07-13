@@ -2,143 +2,7 @@ import '../style/interview.scss'
 import { useState } from 'react'
 import { useInterview } from "../hooks/useInterview.js"
 
-// ── Mock Data ─────────────────────────────────────────────────────────────────
-const MOCK_REPORT = {
-  matchScore: 88,
-  technicalQuestions: [
-    {
-      question: 'Explain JWT refresh token rotation and why it is important for security.',
-      intention: 'Assess understanding of secure authentication patterns and token lifecycle management.',
-      answer: 'Refresh token rotation means issuing a new refresh token every time an access token is refreshed, and invalidating the old one. This prevents replay attacks — if a refresh token is stolen and used, the legitimate user\'s next request will fail because their token was already rotated, alerting the system to a potential breach.',
-    },
-    {
-      question: 'What is the difference between state and props in React? When would you use Context API?',
-      intention: 'Evaluate core React knowledge and understanding of data flow patterns.',
-      answer: 'Props are immutable data passed from parent to child. State is mutable data managed within a component. Context API is used when you need to share data across many components at different nesting levels without prop drilling — like authentication state, theme, or language settings.',
-    },
-    {
-      question: 'How does MongoDB indexing work and when should you use it?',
-      intention: 'Assess database optimization knowledge and practical experience.',
-      answer: 'MongoDB indexes store a small portion of data in an easy-to-traverse form. Without an index, MongoDB does a collection scan. You should index fields that are frequently queried, used in sort operations, or used in joins ($lookup). Avoid over-indexing as it slows down write operations.',
-    },
-    {
-      question: 'Explain the Node.js event loop and how it handles async operations.',
-      intention: 'Test understanding of Node.js internals and non-blocking I/O model.',
-      answer: 'Node.js runs on a single thread using an event loop. When an async operation is called (like a DB query), it is offloaded to libuv thread pool. When complete, the callback is pushed to the event queue and picked up by the event loop when the call stack is empty. This is why Node.js can handle thousands of concurrent connections without blocking.',
-    },
-    {
-      question: 'What are SOLID principles? Give an example of Single Responsibility Principle.',
-      intention: 'Evaluate OOP design knowledge and ability to write maintainable code.',
-      answer: 'SOLID: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion. SRP means a class should have only one reason to change. Example: A UserService class should only handle user business logic — not also handle email sending. Email logic belongs in an EmailService. This makes each class easier to test and maintain.',
-    },
-  ],
-  behavioralQuestions: [
-    {
-      question: 'Tell me about a time you faced a difficult technical bug. How did you approach it?',
-      intention: 'Assess problem-solving methodology, debugging skills, and resilience.',
-      answer: 'Use the STAR method. Situation: Describe the bug and its impact. Task: What was your responsibility. Action: How you systematically debugged — logs, isolating the issue, forming hypotheses. Result: What you fixed and what you learned. Show that you are methodical, not random.',
-    },
-    {
-      question: 'How do you handle disagreements with a teammate about technical decisions?',
-      intention: 'Evaluate communication, collaboration, and professional maturity.',
-      answer: 'Acknowledge their perspective first. Present your reasoning with data or examples, not opinions. Suggest a proof-of-concept if the debate continues. Be willing to defer to the more experienced person while documenting your concern. The goal is the best outcome for the product, not winning the argument.',
-    },
-    {
-      question: 'Describe how you prioritize tasks when working on multiple things at once.',
-      intention: 'Assess time management, organizational skills, and ability to work under pressure.',
-      answer: 'I use impact vs effort matrix — high impact, low effort tasks first. I communicate with stakeholders early if deadlines are at risk. I break large tasks into smaller milestones and use tools like GitHub issues or Notion to track progress. I also time-block my calendar to protect focus time.',
-    },
-    {
-      question: 'Tell me about a project you are most proud of and why.',
-      intention: 'Understand what motivates the candidate and how they measure their own success.',
-      answer: 'Pick a project that shows growth or creativity. Describe what problem it solved, your specific contribution, challenges you overcame, and the outcome. Mention what you learned. Enthusiasm here is genuine signal — talk about something you actually care about.',
-    },
-    {
-      question: 'Where do you see yourself in 2 to 3 years?',
-      intention: 'Assess ambition, self-awareness, and alignment with company growth opportunities.',
-      answer: 'Be specific but realistic. Mention technical growth (system design, TypeScript, cloud), team contribution (mentoring juniors, leading small features), and alignment with the company (growing with the product). Avoid generic answers like "I want to be a senior developer" — say what kind of problems you want to be solving.',
-    },
-  ],
-  preparationPlan: [
-    {
-      day: 1,
-      focus: 'React Core Concepts',
-      tasks: [
-        'Review useState, useEffect, useContext hooks',
-        'Practice prop drilling vs Context API',
-        'Build a small counter app with context',
-        'Read React reconciliation and virtual DOM',
-      ],
-    },
-    {
-      day: 2,
-      focus: 'Node.js and Express.js APIs',
-      tasks: [
-        'Review Express middleware chain',
-        'Practice building RESTful routes',
-        'Revise error handling middleware',
-        'Understand event loop with async/await',
-      ],
-    },
-    {
-      day: 3,
-      focus: 'MongoDB and Database Design',
-      tasks: [
-        'Review mongoose schemas and validation',
-        'Practice aggregation pipeline',
-        'Understand indexing and when to use it',
-        'Compare MongoDB vs MySQL use cases',
-      ],
-    },
-    {
-      day: 4,
-      focus: 'JavaScript ES6 and DSA Basics',
-      tasks: [
-        'Review closures, promises, async/await',
-        'Practice array methods (map, filter, reduce)',
-        'Solve 3 easy LeetCode problems',
-        'Review time complexity basics',
-      ],
-    },
-    {
-      day: 5,
-      focus: 'Authentication and Security',
-      tasks: [
-        'Review JWT access and refresh token flow',
-        'Understand bcrypt hashing rounds',
-        'Practice explaining token rotation',
-        'Review HTTP-only cookie security',
-      ],
-    },
-    {
-      day: 6,
-      focus: 'Skill Gap Focus — TypeScript and Testing',
-      tasks: [
-        'Complete TypeScript basics tutorial (2 hours)',
-        'Write a simple typed Express route',
-        'Learn Jest basics — describe, it, expect',
-        'Write unit test for a utility function',
-      ],
-    },
-    {
-      day: 7,
-      focus: 'Mock Interview and Final Review',
-      tasks: [
-        'Do a full mock interview with a friend or record yourself',
-        'Review all technical questions from this report',
-        'Prepare 3 STAR stories for behavioral questions',
-        'Research TechSolve Pakistan — products, team, culture',
-      ],
-    },
-  ],
-  skillGaps: [
-    { skill: 'TypeScript', severity: 'high' },
-    { skill: 'Docker / AWS', severity: 'high' },
-    { skill: 'Jest / Testing', severity: 'high' },
-    { skill: 'CI/CD Pipelines', severity: 'medium' },
-    { skill: 'System Design', severity: 'medium' },
-  ],
-}
+
 
 // ── Nav Items ─────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -242,9 +106,8 @@ const RoadMapDay = ({ day }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const Interview = () => {
   const [activeNav, setActiveNav] = useState('technical') // ✅ active tab state
-  // const { report } = useInterview();
+  const { report } = useInterview();
 
-  const report = MOCK_REPORT
 
   // ✅ Active section ka content
   const renderContent = () => {

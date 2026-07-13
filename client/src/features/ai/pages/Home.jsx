@@ -2,13 +2,20 @@ import "../style/home.scss";
 import { useInterview } from "../hooks/useInterview.js";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { Loader2 } from "lucide-react";
 
 const Home = () => {
   const navigate = useNavigate();
   const { loading, handleGenerate } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
+  const [fileName, setFileName] = useState("");
   const resumeInputRef = useRef();
+
+  const handleResumeChange = (event) => {
+    const file = event.target.files?.[0];
+    setFileName(file?.name || "");
+  };
 
   const handleSubmit = async () => {
     const resumeFile = resumeInputRef.current?.files[0];
@@ -83,7 +90,9 @@ const Home = () => {
               placeholder="Paste the full job description here..."
               maxLength={5000}
             />
-            <div className="char-counter">{jobDescription.length} / 5000 chars</div>
+            <div className="char-counter">
+              {jobDescription.length} / 5000 chars
+            </div>
           </div>
 
           {/* Vertical Divider */}
@@ -117,28 +126,50 @@ const Home = () => {
                 Upload Resume
                 <span className="badge badge--best">Best Results</span>
               </label>
-              <label className="dropzone" htmlFor="resume">
+              <label
+                className={`dropzone${fileName ? " dropzone--uploaded" : ""}`}
+                htmlFor="resume"
+              >
                 <span className="dropzone__icon">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="16 16 12 12 8 16" />
-                    <line x1="12" y1="12" x2="12" y2="21" />
-                    <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-                  </svg>
+                  {fileName ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M8 12.5l2 2 4-4" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="16 16 12 12 8 16" />
+                      <line x1="12" y1="12" x2="12" y2="21" />
+                      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                    </svg>
+                  )}
                 </span>
                 <p className="dropzone__title">
-                  Click to upload or drag &amp; drop
+                  {fileName ? fileName : "Click to upload or drag &amp; drop"}
                 </p>
-                <p className="dropzone__subtitle">PDF (Max 5MB)</p>
+                <p className="dropzone__subtitle">
+                  {fileName ? "Click to change file" : "PDF (Max 5MB)"}
+                </p>
                 <input
                   hidden
                   ref={resumeInputRef}
@@ -146,6 +177,7 @@ const Home = () => {
                   id="resume"
                   name="resume"
                   accept=".pdf"
+                  onChange={handleResumeChange}
                 />
               </label>
             </div>
@@ -220,16 +252,25 @@ const Home = () => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
-            </svg>
-            {loading ? "Generating" : "Generate My Interview Strategy"}
+            {loading ? (
+              <>
+                <Loader2 size={16} className="spinner" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
+                </svg>
+                Generate My Interview Strategy
+              </>
+            )}
           </button>
         </div>
       </div>
