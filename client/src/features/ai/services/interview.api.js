@@ -58,3 +58,28 @@ export const getAllReports = async () => {
     throw error?.response?.data || error;
   }
 };
+
+// ─── Download Resume PDF ─────────────────────────────────────
+export const downloadResumePDF = async (reportId) => {
+  try {
+    const response = await api.get(`/interview/${reportId}/pdf`, {
+      responseType: "blob", // ← Binary PDF data ke liye zaruri
+    });
+
+    // Browser download trigger karo
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], { type: "application/pdf" })
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "resume.pdf");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url); // Memory free karo
+
+    return true;
+  } catch (error) {
+    throw error?.response?.data || error;
+  }
+};
