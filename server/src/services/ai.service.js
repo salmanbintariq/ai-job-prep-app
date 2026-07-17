@@ -49,7 +49,8 @@ const interviewGeminiSchema = {
     },
     matchScore: {
       type: "number",
-      description: "Match score between candidate resume and job description (0-100)",
+      description:
+        "Match score between candidate resume and job description (0-100)",
     },
     technicalQuestions: {
       type: "array",
@@ -191,10 +192,12 @@ ${selfDescription}
 };
 
 // ─── HTML to PDF (Puppeteer) ─────────────────────────────────
-async function generatePdfFromHtml(htmlContent) {        // ✅ added
+async function generatePdfFromHtml(htmlContent) {
+  // ✅ added
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", 
+    executablePath:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     protocolTimeout: 180000,
     args: [
       "--no-sandbox",
@@ -206,16 +209,19 @@ async function generatePdfFromHtml(htmlContent) {        // ✅ added
 
   const page = await browser.newPage();
   page.setDefaultTimeout(120000);
-  await page.setContent(htmlContent, { waitUntil: "domcontentloaded",timeout: 60000, });
+  await page.setContent(htmlContent, {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 
   const pdfBuffer = await page.pdf({
     format: "A4",
     printBackground: true,
     margin: {
-      top: "20mm",
-      bottom: "20mm",
-      left: "15mm",
-      right: "15mm",
+      top: "15mm",
+      bottom: "15mm",
+      left: "10mm",
+      right: "10mm",
     },
   });
 
@@ -224,12 +230,13 @@ async function generatePdfFromHtml(htmlContent) {        // ✅ added
 }
 
 // ─── Resume PDF Gemini Schema ────────────────────────────────
-const resumeGeminiSchema = {                             
+const resumeGeminiSchema = {
   type: "object",
   properties: {
     html: {
       type: "string",
-      description: "Complete HTML resume with inline CSS, ready for PDF conversion",
+      description:
+        "Complete HTML resume with inline CSS, ready for PDF conversion",
     },
   },
   required: ["html"],
@@ -237,9 +244,9 @@ const resumeGeminiSchema = {
 
 // ─── Resume PDF Zod Schema ───────────────────────────────────
 const resumePDFSchema = z.object({
-  html: z.string().describe(
-    "Complete, self-contained HTML resume with inline CSS styling."
-  ),
+  html: z
+    .string()
+    .describe("Complete, self-contained HTML resume with inline CSS styling."),
 });
 
 // ─── Generate Resume PDF ─────────────────────────────────────
@@ -248,30 +255,52 @@ export const generateResumePDF = async ({
   selfDescription,
   jobDescription,
 }) => {
-  const prompt = `You are a professional resume writer.
+  const prompt = `You are an expert resume writer with 15+ years of experience in tech hiring.
 
-Generate a complete, well-formatted HTML resume for the candidate below.
+Your task is to write a tailored, ATS-optimized resume in HTML format for the candidate below.
 
-CANDIDATE RESUME / EXPERIENCE:
-${resume}
+CANDIDATE DATA:
+Resume/Experience: ${resume}
+Job Description: ${jobDescription}  
+Self Description: ${selfDescription}
 
-JOB DESCRIPTION (tailor resume for this role):
-${jobDescription}
+CONTENT RULES (most important):
+- Write in first-person implicit tone — no "I" statements, just action verbs
+- Use STRONG action verbs: Architected, Engineered, Delivered, Spearheaded, Optimized
+- Every bullet point must show IMPACT — what changed because of this person's work
+- Quantify wherever possible — "30+ students", "3 projects", "reduced by 40%"
+- Mirror exact keywords from the job description — this is critical for ATS
+- Content must sound like a real human wrote it — NOT AI generated
+- No buzzwords like "leverage", "utilize", "synergy", "passionate about"
+- No generic statements like "team player" or "hard worker"
+- Keep it concise — max 1 page, quality over quantity
+- Only include experience/skills relevant to the job description
 
-SELF DESCRIPTION:
-${selfDescription}
+HTML DESIGN RULES:
+- Clean, minimal, professional design
+- Use ONLY inline CSS — no external stylesheets or Google Fonts
+- Safe fonts only: Arial, Georgia, Times New Roman, Helvetica
+- Color scheme: dark navy (#1a1a2e) headings, black body text, subtle accent
+- Proper visual hierarchy — name biggest, sections clear
+- Single column layout — ATS friendly
+- No tables, no multi-column layouts — breaks ATS parsing
+- No icons or images — text only
+- Proper spacing — not too cramped, not too airy
 
-STRICT REQUIREMENTS:
-- Return a single JSON object with one field: "html"
-- The HTML must be complete and self-contained
-- Use ONLY inline CSS styles (no external stylesheets)
-- Professional design: clean layout, good typography
-- Include sections: Summary, Skills, Experience, Projects, Education
-- Tailor the content to match the job description
-- The content should NOT sound AI-generated
-- ATS friendly format
-- Max 1-2 pages when converted to PDF
-- Do NOT include markdown, code blocks, or any text outside the JSON`;
+SECTIONS TO INCLUDE (in this order):
+1. Header — Name, Role, Location, Email, GitHub, LinkedIn
+2. Professional Summary — 3-4 lines, tailored to the JD
+3. Technical Skills — grouped by category, keywords from JD first
+4. Projects — most relevant first, with tech stack and impact
+5. Experience — if any professional experience
+6. Education & Certifications
+
+OUTPUT FORMAT:
+- Return ONLY a JSON object
+- Single field: "html"
+- The html value must be a complete, valid HTML document
+- Start with <!DOCTYPE html>
+- No markdown, no backticks, no explanation outside JSON`;
 
   try {
     const response = await ai.models.generateContent({
@@ -289,7 +318,6 @@ STRICT REQUIREMENTS:
     // ✅ HTML se PDF banao aur return karo
     const pdfBuffer = await generatePdfFromHtml(validated.html);
     return pdfBuffer;
-
   } catch (error) {
     throw new Error(`Resume PDF generation failed: ${error.message}`);
   }
