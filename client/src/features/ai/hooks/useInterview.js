@@ -4,6 +4,7 @@ import {
   generateInterviewReport,
   getAllReports,
   getReportById,
+  downloadResumePDF,
 } from "../services/interview.api.js";
 
 export const useInterview = () => {
@@ -60,6 +61,18 @@ export const useInterview = () => {
     }
   };
 
+  // Handle resume download
+  const handleDownload = async (reportId) => {
+    setLoading(true);
+    try {
+      await downloadResumePDF(reportId);
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ─── Return ────────────────────────────────────────────────
   return {
     loading,
@@ -68,5 +81,6 @@ export const useInterview = () => {
     handleGenerate,
     fetchAllReports,
     fetchReportById,
+    handleDownload
   };
 };

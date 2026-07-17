@@ -1,5 +1,5 @@
 import { extractText } from "unpdf";
-import { generateInterviewReport } from "../services/ai.service.js";
+import { generateInterviewReport, generateResumePDF } from "../services/ai.service.js";
 import InterviewReport from "../models/interviewReport.model.js";
 
 export const generateInterviewController = async (req, res) => {
@@ -205,6 +205,46 @@ export const getAllInterviewReportsController = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || "Internal Server Error.",
+    });
+  }
+};
+
+export const downloadResumePDFController = async (req, res) => {
+  try {
+    // DB se report lo
+    const report = await InterviewReport.findOne({
+      _id: req.params.id,
+    });
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        message: "Report not found",
+      });
+    }
+
+    // AI se PDF banao
+    const pdfBuffer = await generateResumePDF({
+      resume: report.resume,
+      jobDescription: report.jobDescription,
+      selfDescription: report.selfDescription,
+    });
+
+    // PDF bhejo
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename=resume.pdf`,
+    });
+
+    res.end(pdfBuffer);
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate resume PDF",
+      ...(process.env.NODE_ENV === "development" && {
+        error: error.message,
+      }),
     });
   }
 };

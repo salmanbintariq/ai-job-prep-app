@@ -5,7 +5,8 @@ import { authUser } from "../middlewares/auth.middleware.js";
 import {
   generateInterviewController,
   getInterviewReportByIdController,
-  getAllInterviewReportsController
+  getAllInterviewReportsController,
+  downloadResumePDFController
 } from "../controllers/interview.controller.js";
 
 const interviewRouter = express.Router();
@@ -44,5 +45,12 @@ interviewRouter.get(
  */
 
 interviewRouter.get("/", authUser, getAllInterviewReportsController);
+
+// GET /api/resume/:id/pdf
+interviewRouter.get(             // ✅ interviewRouter
+  "/:id/pdf",
+  authUser,
+  downloadResumePDFController
+);
 
 export default interviewRouter;
