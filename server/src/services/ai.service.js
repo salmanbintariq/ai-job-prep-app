@@ -193,11 +193,15 @@ ${selfDescription}
 
 // ─── HTML to PDF (Puppeteer) ─────────────────────────────────
 async function generatePdfFromHtml(htmlContent) {
+
+  const isProduction = process.env.NODE_ENV == "production";
+
   // ✅ added
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath:
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    executablePath: isProduction 
+      ? "/usr/bin/google-chrome-stable" 
+      : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     protocolTimeout: 180000,
     args: [
       "--no-sandbox",
