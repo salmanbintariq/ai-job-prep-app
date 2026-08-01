@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../hooks/useAuth.js";
+import { toast } from "sonner";
 import Spinner from "../../../shared/components/Spinner.jsx";
 
 const Register = () => {
@@ -14,14 +15,19 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleRegister({ username, email, password });
-    navigate("/");
+    try {
+      await handleRegister({ username, email, password });
+      toast.success("Account created successfully!");
+      navigate("/");
+    } catch (error) {
+      toast.error(error?.message || "Registration failed. Please try again.");
+    }
   };
 
   if (loading) {
     return (
       <main>
-        <Spinner size="inline"/>
+        <Spinner size="inline" />
       </main>
     );
   }
@@ -35,9 +41,10 @@ const Register = () => {
           <div className="input-group">
             <label htmlFor="username">Username</label>
             <input
-              onSubmit={(e) => {
+              onChange={(e) => {
                 setUserName(e.target.value);
               }}
+              value={username}
               type="text"
               name="username"
               id="username"
@@ -50,6 +57,7 @@ const Register = () => {
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
+              value={email}
               type="email"
               name="email"
               id="email"
@@ -62,6 +70,7 @@ const Register = () => {
               onChange={(e) => {
                 setPassword(e.target.value);
               }}
+              value={password}
               type="password"
               name="password"
               id="password"

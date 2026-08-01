@@ -3,6 +3,7 @@ import { useInterview } from "../hooks/useInterview.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,12 +26,12 @@ const Home = () => {
     const resumeFile = resumeInputRef.current?.files[0];
 
     if (!jobDescription.trim()) {
-      alert("Please enter a job description");
+      toast.error("Please enter a job description");
       return;
     }
 
     if (!resumeFile && !selfDescription.trim()) {
-      alert("Please upload a resume or enter a self description");
+      toast.error("Please upload a resume or enter a self description");
       return;
     }
 
@@ -43,8 +44,7 @@ const Home = () => {
 
       navigate(`/interview/${data._id}`);
     } catch (error) {
-      console.error("Failed to generate report:", error);
-      alert(error?.message || "Failed to generate report. Please try again.");
+      toast.error(error?.message || "Failed to generate report. Please try again.");
     }
   };
 
