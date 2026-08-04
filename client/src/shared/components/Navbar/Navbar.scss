@@ -1,0 +1,150 @@
+// ─── Variables — existing theme se match ────────────────────
+$bg-base:        #0a0f1e;
+$bg-surface:     #111827;
+$border:         rgba(255, 255, 255, 0.08);
+$primary:        #ff2d78;
+$primary-light:  #ff6b9d;
+$accent:         #a78bfa;
+$text-primary:   #f1f5f9;
+$text-secondary: #94a3b8;
+$text-muted:     #64748b;
+$radius-sm:      6px;
+$radius-md:      12px;
+
+// ─── Navbar ─────────────────────────────────────────────────
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: 60px;
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid $border;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
+}
+
+.navbar__inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// ─── Logo ───────────────────────────────────────────────────
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, $primary, $accent);
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: $text-primary;
+    letter-spacing: -0.02em;
+
+    span {
+      background: linear-gradient(135deg, $primary-light, $accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+}
+
+// ─── Actions ────────────────────────────────────────────────
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// ─── Buttons ────────────────────────────────────────────────
+.navbar__btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+
+  // Ghost — Login button
+  &--ghost {
+    background: transparent;
+    color: $text-secondary;
+    border: 1px solid $border;
+
+    &:hover {
+      color: $text-primary;
+      border-color: rgba(99, 102, 241, 0.4);
+      background: rgba(99, 102, 241, 0.06);
+    }
+  }
+
+  // Primary — Register / New Report
+  &--primary {
+    background: linear-gradient(135deg, $primary, $accent);
+    color: #fff;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // Danger — Logout
+  &--danger {
+    background: transparent;
+    color: $text-muted;
+    border: 1px solid $border;
+
+    &:hover {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.06);
+    }
+  }
+}
+
+// ─── User Info ───────────────────────────────────────────────
+.navbar__user {
+  font-size: 13px;
+  color: $text-secondary;
+  padding: 0 8px;
+
+  span {
+    color: $text-primary;
+    font-weight: 500;
+  }
+}

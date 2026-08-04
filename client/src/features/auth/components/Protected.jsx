@@ -1,14 +1,14 @@
 import Spinner from "../../../shared/components/Spinner.jsx";
 import { useAuth } from "../hooks/useAuth.js";
-import { Navigate } from "react-router";
+import { Navigate, Outlet } from "react-router";
 
-const Protected = ({ children }) => {
+const Protected = () => { 
   const { loading, user } = useAuth();
 
   if (loading) {
     return (
       <main>
-        <Spinner/>
+        <Spinner />
       </main>
     );
   }
@@ -17,7 +17,7 @@ const Protected = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <Outlet />; 
 };
 
 export default Protected;
