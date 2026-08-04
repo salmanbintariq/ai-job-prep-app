@@ -4,9 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "../../auth/hooks/useAuth.js";
+import Spinner from "../../../shared/components/Spinner.jsx";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { loading, handleGenerate, reports, fetchAllReports } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
@@ -23,6 +26,12 @@ const Home = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please login to generate your interview report");
+      navigate("/login");
+      return;
+    }
+
     const resumeFile = resumeInputRef.current?.files[0];
 
     if (!jobDescription.trim()) {
@@ -47,6 +56,8 @@ const Home = () => {
       toast.error(error?.message || "Failed to generate report. Please try again.");
     }
   };
+
+  if (loading) return <Spinner/>
 
   return (
     <div className="home-page">
