@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import * as z from "zod";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -193,16 +193,8 @@ ${selfDescription}
 
 // ─── HTML to PDF (Puppeteer) ─────────────────────────────────
 async function generatePdfFromHtml(htmlContent) {
-
-  const isProduction = process.env.NODE_ENV == "production";
-
-  // ✅ added
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: isProduction 
-      ? "/usr/bin/google-chrome-stable" 
-      : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    protocolTimeout: 180000,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -212,7 +204,9 @@ async function generatePdfFromHtml(htmlContent) {
   });
 
   const page = await browser.newPage();
+
   page.setDefaultTimeout(120000);
+
   await page.setContent(htmlContent, {
     waitUntil: "domcontentloaded",
     timeout: 60000,
@@ -230,6 +224,7 @@ async function generatePdfFromHtml(htmlContent) {
   });
 
   await browser.close();
+
   return pdfBuffer;
 }
 
