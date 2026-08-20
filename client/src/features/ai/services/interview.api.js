@@ -27,7 +27,7 @@ export const generateInterviewReport = async ({jobDescription, selfDescription, 
   formData.append("resume", resumeFile) 
 
   try {
-    const res = await api.post("/interview/", formData, {
+    const res = await api.post("/api/interview/", formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       }
@@ -42,7 +42,7 @@ export const generateInterviewReport = async ({jobDescription, selfDescription, 
 // ─── Get Single Report ───────────────────────────────────────
 export const getReportById = async (id) => {
   try {
-    const res = await api.get(`/interview/report/${id}`);
+    const res = await api.get(`/api/interview/report/${id}`);
     return res.data;
   } catch (error) {
     throw error?.response?.data || error;
@@ -52,7 +52,7 @@ export const getReportById = async (id) => {
 // ─── Get All Reports ─────────────────────────────────────────
 export const getAllReports = async () => {
   try {
-    const res = await api.get("/interview/");
+    const res = await api.get("/api/interview/");
     return res.data;
   } catch (error) {
     throw error?.response?.data || error;
@@ -62,7 +62,7 @@ export const getAllReports = async () => {
 // ─── Download Resume PDF ─────────────────────────────────────
 export const downloadResumePDF = async (reportId) => {
   try {
-    const response = await api.get(`/interview/${reportId}/pdf`, {
+    const response = await api.get(`/api/interview/${reportId}/pdf`, {
       responseType: "blob", // ← Binary PDF data ke liye zaruri
     });
 
