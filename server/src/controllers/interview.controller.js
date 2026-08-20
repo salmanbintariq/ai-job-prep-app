@@ -239,6 +239,7 @@ export const downloadResumePDFController = async (req, res) => {
     res.end(pdfBuffer);
 
   } catch (error) {
+    console.error("PDF GENERATION ERROR:", error);
     res.status(500).json({
       success: false,
       message: "Failed to generate resume PDF",
