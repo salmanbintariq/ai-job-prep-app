@@ -24,12 +24,12 @@ Job hunting shouldn't mean guessing what an interviewer will ask. **AI Job Prep 
 
 <table>
 <tr>
-<td align="center"><b>Login</b><br><img src="/screenshots/login-page.png.png" width="400"/></td>
+<td align="center"><b>Login</b><br><img src="/screenshots/login-page.png" width="400"/></td>
 <td align="center"><b>Home</b><br><img src="/screenshots/home-page.png" width="400"/></td>
 </tr>
 <tr>
-<td align="center"><b>Interview Report</b><br><img src="/screenshots/recent-interviews.png.png" width="400"/></td>
-<td align="center"><b>Skill Gaps & Prep Plan</b><br><img src="/screenshots/analysis-page.png.png" width="400"/></td>
+<td align="center"><b>Interview Report</b><br><img src="/screenshots/recent-interviews.png" width="400"/></td>
+<td align="center"><b>Skill Gaps & Prep Plan</b><br><img src="/screenshots/analysis-page.png" width="400"/></td>
 </tr>
 </table>
 
@@ -174,7 +174,7 @@ Every generated interview report is saved to MongoDB, so you can revisit past pr
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/ai-job-prep-app.git
+git clone https://github.com/salmanbintariq/ai-job-prep-app.git
 cd ai-job-prep-app
 
 # Install backend dependencies
@@ -242,10 +242,6 @@ ai-job-prep-app/
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome. Feel free to open a pull request or file an issue.
-
-## 📜 License
-
-This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
